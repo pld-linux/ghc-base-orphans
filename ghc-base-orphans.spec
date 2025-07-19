@@ -4,6 +4,7 @@
 #
 %define		pkgname	base-orphans
 Summary:	Backwards-compatible orphan instances for base
+Summary(pl.UTF-8):	Zgodne wstecznie osierocone instancje dla biblioteki bazowej
 Name:		ghc-%{pkgname}
 Version:	0.8.2
 Release:	2
@@ -13,13 +14,20 @@ Group:		Development/Languages
 Source0:	http://hackage.haskell.org/package/%{pkgname}-%{version}/%{pkgname}-%{version}.tar.gz
 # Source0-md5:	3de80a9b42b3b2662e8f1e08c861ddaa
 URL:		http://hackage.haskell.org/package/base-orphans
-BuildRequires:	ghc >= 6.12.3
+BuildRequires:	ghc >= 7.0.1
+BuildRequires:	ghc-base >= 4.3
+BuildRequires:	ghc-base < 5
+BuildRequires:	ghc-ghc-prim
 %if %{with prof}
-BuildRequires:	ghc-prof
+BuildRequires:	ghc-prof >= 7.0.1
+BuildRequires:	ghc-base-prof >= 4.3
+BuildRequires:	ghc-ghc-prim-prof
 %endif
 BuildRequires:	rpmbuild(macros) >= 1.608
 %requires_eq	ghc
 Requires(post,postun):	/usr/bin/ghc-pkg
+Requires:	ghc-base >= 4.3
+Requires:	ghc-ghc-prim
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # debuginfo is not useful for ghc
@@ -34,14 +42,23 @@ in later versions of base to a wider (older) range of compilers.
 base-orphans does not export anything except the orphan instances
 themselves and complements base-compat. See the README for what
 instances are covered:
-https://github.com/haskell-compat/base-orphans#readme.
-See also the what is not covered section.
+<https://github.com/haskell-compat/base-orphans#readme>.
+
+%description -l pl.UTF-8
+base-orphans definiuje instancje, które naśladują instancje dostępne w
+późniejszych wersjach biblioteki bazowej na potrzeby szerszego
+(starszego) przedziału wersji kompilatorów. base-orphans nie
+eksportuje niczego poza samymi osieroconymi instancjami i dopełnia
+base-compat. To, które instancje pokrywa, można znaleźć w README:
+<https://github.com/haskell-compat/base-orphans#readme>.
 
 %package prof
 Summary:	Profiling %{pkgname} library for GHC
 Summary(pl.UTF-8):	Biblioteka profilująca %{pkgname} dla GHC
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+Requires:	ghc-base-prof >= 4.3
+Requires:	ghc-ghc-prim-prof
 
 %description prof
 Profiling %{pkgname} library for GHC.  Should be installed when
@@ -63,6 +80,7 @@ runhaskell Setup.hs configure -v2 \
 	--docdir=%{_docdir}/%{name}-%{version}
 
 runhaskell Setup.hs build
+
 runhaskell Setup.hs haddock --executables
 
 %install
@@ -93,7 +111,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc CHANGES.markdown README.markdown %{name}-%{version}-doc/*
 %{_libdir}/%{ghcdir}/package.conf.d/%{pkgname}.conf
 %dir %{_libdir}/%{ghcdir}/%{pkgname}-%{version}
-%{_libdir}/%{ghcdir}/%{pkgname}-%{version}/*.so
+%attr(755,root,root) %{_libdir}/%{ghcdir}/%{pkgname}-%{version}/*.so
 %{_libdir}/%{ghcdir}/%{pkgname}-%{version}/*.a
 %exclude %{_libdir}/%{ghcdir}/%{pkgname}-%{version}/*_p.a
 
